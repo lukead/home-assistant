@@ -1,0 +1,362 @@
+[
+    {
+        "id": "dda4adb6107fe95a",
+        "type": "tab",
+        "label": "Get fixtures",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "b8b34726689400b2",
+        "type": "inject",
+        "z": "dda4adb6107fe95a",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "21600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "be6b23358dc44048"
+            ]
+        ]
+    },
+    {
+        "id": "be6b23358dc44048",
+        "type": "http request",
+        "z": "dda4adb6107fe95a",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://cdnapi.manutd.com/api/v1/en/gb/all/web/list/matchfixture/sid:2023~team:Team%20Level%2FFirst%20Team~isMU:true/0/30",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "User-Agent",
+                "keyValue": "",
+                "valueType": "other",
+                "valueValue": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "x-api-key",
+                "valueType": "other",
+                "valueValue": "RySFXMCM0K1cmM7CyQb4v5iREoFooHXV9CyeKK3o"
+            }
+        ],
+        "x": 330,
+        "y": 160,
+        "wires": [
+            [
+                "f91d986379206e90"
+            ]
+        ]
+    },
+    {
+        "id": "48bcb29bc3251652",
+        "type": "debug",
+        "z": "dda4adb6107fe95a",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "f91d986379206e90",
+        "type": "function",
+        "z": "dda4adb6107fe95a",
+        "name": "Parse response",
+        "func": "const payload = JSON.parse(msg.payload);\n\nmsg.payload = payload;\n\nconst fixtures = payload.FixtureListResponse.response.docs;\n\nmsg.payload = fixtures.slice(0, 3).map((fixture) => ({\n    home: fixture.hometeamshortname_t,\n    away: fixture.awayteamshortname_t,\n    competition: fixture.aliascompetitionname_t,\n    broadcaster: fixture.broadcasterdetails_s?.BroadcasterName ?? 'None',\n    date: fixture.matchdate_tdt\n}));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 260,
+        "wires": [
+            [
+                "fe6da457d633a2e9",
+                "bd62fe2c0ff8fa32",
+                "4aea621161a56408",
+                "48bcb29bc3251652"
+            ]
+        ]
+    },
+    {
+        "id": "fe6da457d633a2e9",
+        "type": "ha-sensor",
+        "z": "dda4adb6107fe95a",
+        "name": "Fixture 0",
+        "entityConfig": "31eed386fbc8731f",
+        "version": 0,
+        "state": "payload[0].date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "home",
+                "value": "payload[0].home",
+                "valueType": "msg"
+            },
+            {
+                "property": "away",
+                "value": "payload[0].away",
+                "valueType": "msg"
+            },
+            {
+                "property": "competition",
+                "value": "payload[0].competition",
+                "valueType": "msg"
+            },
+            {
+                "property": "broadcaster",
+                "value": "payload[0].broadcaster",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 720,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bd62fe2c0ff8fa32",
+        "type": "ha-sensor",
+        "z": "dda4adb6107fe95a",
+        "name": "Fixture 1",
+        "entityConfig": "6f8f901c07a39007",
+        "version": 0,
+        "state": "payload[1].date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "home",
+                "value": "payload[1].home",
+                "valueType": "msg"
+            },
+            {
+                "property": "away",
+                "value": "payload[1].away",
+                "valueType": "msg"
+            },
+            {
+                "property": "competition",
+                "value": "payload[1].competition",
+                "valueType": "msg"
+            },
+            {
+                "property": "broadcaster",
+                "value": "payload[1].broadcaster",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 720,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4aea621161a56408",
+        "type": "ha-sensor",
+        "z": "dda4adb6107fe95a",
+        "name": "Fixture 2",
+        "entityConfig": "97119bb73e8a1213",
+        "version": 0,
+        "state": "payload[2].date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "home",
+                "value": "payload[2].home",
+                "valueType": "msg"
+            },
+            {
+                "property": "away",
+                "value": "payload[2].away",
+                "valueType": "msg"
+            },
+            {
+                "property": "competition",
+                "value": "payload[2].competition",
+                "valueType": "msg"
+            },
+            {
+                "property": "broadcaster",
+                "value": "payload[2].broadcaster",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 720,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "31eed386fbc8731f",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Fixture0",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Fixture0"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "6f8f901c07a39007",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Fixture1",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Fixture1"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "97119bb73e8a1213",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Fixture2",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Fixture2"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "24ffbc71.2b42a4",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true
+    }
+]

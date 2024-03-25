@@ -1,0 +1,471 @@
+[
+    {
+        "id": "37e16be9455dd9dc",
+        "type": "tab",
+        "label": "Bins",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "999c28b2f0ce7ddf",
+        "type": "http request",
+        "z": "37e16be9455dd9dc",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://recyclingservices.bromley.gov.uk/waste/3678404/calendar.ics",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Cookie",
+                "valueType": "other",
+                "valueValue": "fixmystreet_app_session=b874ab58ef46b30ef873b6794dcfe15845775cd8; CookieControl={\"necessaryCookies\":[],\"optionalCookies\":{},\"statement\":{},\"consentDate\":1705094689834,\"consentExpiry\":90,\"interactedWith\":true,\"user\":\"DD2BE5A1-5BD0-4FE5-9CE0-8AACC9DA8AD4\"}"
+            }
+        ],
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "551bd9f2e30f1a0a"
+            ]
+        ]
+    },
+    {
+        "id": "6d860ff80c2c2b4a",
+        "type": "inject",
+        "z": "37e16be9455dd9dc",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 09 * * 1",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "999c28b2f0ce7ddf"
+            ]
+        ]
+    },
+    {
+        "id": "551bd9f2e30f1a0a",
+        "type": "function",
+        "z": "37e16be9455dd9dc",
+        "name": "Parse",
+        "func": "const groupsMatcher = /(?:BEGIN:VEVENT)(.*?)(?:END:VEVENT)/mgs;\nconst innerMatcher = /.*DTSTART;VALUE=DATE:(\\d+).*?SUMMARY:([\\w&-]+).*?/mgs;\n\nconst rawEvents = [...msg.payload.matchAll(groupsMatcher)];\n\nconst events = rawEvents.reduce((acc, [, event]) => {\n    const matches = [...event.matchAll(innerMatcher)];\n    const [,rawDate,type] =  matches[0];\n    const year = parseInt(rawDate.substring(0, 4));\n    const month = parseInt(rawDate.substring(4, 6)) - 1;\n    const day = parseInt(rawDate.substring(6, 8));\n    const date = new Date(year, month, day);\n\n    if (acc[type]?.date?.valueOf() < date.valueOf()) {\n        return acc;\n    }\n\n    const dayText = date.toLocaleDateString('en-gb', { weekday: 'short' });\n    const summary = `${type} (${dayText})`;\n\n\n    const maxDate = new Date(Date.now() + (1000 * 60 * 60 * 24 * 7));\n    const isThisWeek = date.valueOf() <= maxDate.valueOf();\n\n\n    acc[type] = {\n        date,\n        summary,\n        isThisWeek,\n        type\n    };\n    return acc;\n}, {});\n\nmsg.payload = events;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "dc00d7e867237b42",
+                "8b2ccf8587bfd626",
+                "5083c1e686dc163b",
+                "e0686939eef63ac7",
+                "4769350336cd8287",
+                "215173b68cf5a4cf"
+            ]
+        ]
+    },
+    {
+        "id": "405a8b91113bc1ac",
+        "type": "api-call-service",
+        "z": "37e16be9455dd9dc",
+        "name": "Notify",
+        "server": "24ffbc71.2b42a4",
+        "version": 5,
+        "debugenabled": true,
+        "domain": "notify",
+        "service": "mobile_app_luke_s_iphone",
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [],
+        "data": "{\"message\":\"{{ payload }}\",\"title\":\"Bins this week\",\"target\":\"platform specific\",\"data\":{}}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "x": 490,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc00d7e867237b42",
+        "type": "function",
+        "z": "37e16be9455dd9dc",
+        "name": "prepare message",
+        "func": "const broadcastMessage = Object.values(msg.payload)\n    .filter((e) => e.isThisWeek)\n    .map(((e) => e.summary)).join(' | ');\n\nmsg.payload = broadcastMessage;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 240,
+        "wires": [
+            [
+                "405a8b91113bc1ac"
+            ]
+        ]
+    },
+    {
+        "id": "8b2ccf8587bfd626",
+        "type": "ha-sensor",
+        "z": "37e16be9455dd9dc",
+        "name": "Non-recyclable",
+        "entityConfig": "bd7ea06927260e84",
+        "version": 0,
+        "state": "payload.Non-Recyclable.date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "isThisWeek",
+                "value": "payload.Non-Recyclable.isThisWeek",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 740,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5083c1e686dc163b",
+        "type": "ha-sensor",
+        "z": "37e16be9455dd9dc",
+        "name": "Paper",
+        "entityConfig": "610bba46c7070e75",
+        "version": 0,
+        "state": "payload.Paper.date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "isThisWeek",
+                "value": "payload.Paper.isThisWeek",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 710,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e0686939eef63ac7",
+        "type": "ha-sensor",
+        "z": "37e16be9455dd9dc",
+        "name": "Mixed",
+        "entityConfig": "a98f42be58befef7",
+        "version": 0,
+        "state": "payload.Mixed.date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "isThisWeek",
+                "value": "payload.Mixed.isThisWeek",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 710,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4769350336cd8287",
+        "type": "ha-sensor",
+        "z": "37e16be9455dd9dc",
+        "name": "Food",
+        "entityConfig": "138e92ba2a0ef6e2",
+        "version": 0,
+        "state": "payload.Food.date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "isThisWeek",
+                "value": "payload.Food.isThisWeek",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 710,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "215173b68cf5a4cf",
+        "type": "ha-sensor",
+        "z": "37e16be9455dd9dc",
+        "name": "Garden",
+        "entityConfig": "1e73cf9ff09970fe",
+        "version": 0,
+        "state": "payload.Garden.date",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "isThisWeek",
+                "value": "payload.Garden.isThisWeek",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 720,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24ffbc71.2b42a4",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true
+    },
+    {
+        "id": "bd7ea06927260e84",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "bins_general",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "General waste"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "timestamp"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "610bba46c7070e75",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "bins_paper",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Paper waste"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "timestamp"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "a98f42be58befef7",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "bins_mixed",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Mixed waste"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "timestamp"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "138e92ba2a0ef6e2",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "bins_food",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Food waste"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "timestamp"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "1e73cf9ff09970fe",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "bins_garden",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Garden waste"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": "timestamp"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    }
+]

@@ -1,0 +1,232 @@
+[
+    {
+        "id": "74a7bc70964ef2e0",
+        "type": "tab",
+        "label": "Rail",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "f08623e643be81d2",
+        "type": "http request",
+        "z": "74a7bc70964ef2e0",
+        "name": "Bromley South",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep/LDBWS/api/20220120/GetArrDepBoardWithDetails/BMS",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "x-apikey",
+                "valueType": "other",
+                "valueValue": "XXXXXXXXXXXXXXX"
+            }
+        ],
+        "x": 260,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f67d9218a55ec05a",
+        "type": "inject",
+        "z": "74a7bc70964ef2e0",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 07 * * 1,2,3,4,5",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "a20d2c127abe7325"
+            ]
+        ]
+    },
+    {
+        "id": "a20d2c127abe7325",
+        "type": "http request",
+        "z": "74a7bc70964ef2e0",
+        "name": "Beckenham Junction",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep/LDBWS/api/20220120/GetArrDepBoardWithDetails/BKJ",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "x-apikey",
+                "valueType": "other",
+                "valueValue": "XXXXXXXXXXXXXXX"
+            }
+        ],
+        "x": 283,
+        "y": 217,
+        "wires": [
+            [
+                "2b74b3e45c2a9e67"
+            ]
+        ]
+    },
+    {
+        "id": "2b74b3e45c2a9e67",
+        "type": "function",
+        "z": "74a7bc70964ef2e0",
+        "name": "parse",
+        "func": "const data = JSON.parse(msg.payload);\n\nmsg.payload = data.trainServices.map(({\n    destination,\n    cancelReason = '',\n    isCancelled,\n    origin,\n    platform = '',\n    eta,\n    etd,\n    serviceID,\n    sta,\n    std\n}) => ({\n    cancelReason,\n    destination: destination[0].locationName,\n    isCancelled,\n    origin: origin[0].locationName,\n    platform,\n    eta,\n    etd,\n    serviceID,\n    sta,\n    std\n}))\n.filter((item) => (item.destination === 'London Blackfriars' &&\n    item.std === '07:30') ||\n    (item.destination === 'London Victoria' &&\n    item.std === '07:25'));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 140,
+        "wires": [
+            [
+                "e8633b6e489249a6"
+            ]
+        ]
+    },
+    {
+        "id": "e8633b6e489249a6",
+        "type": "function",
+        "z": "74a7bc70964ef2e0",
+        "name": "parse",
+        "func": "msg.payload = msg.payload.map(({ etd, std, destination, platform }) => \n`${std} to ${destination} (${etd})${platform ? `, plat. ${platform}` : ''}`);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 200,
+        "wires": [
+            [
+                "b04d6cc998d37395"
+            ]
+        ]
+    },
+    {
+        "id": "4dd6b7316ef38259",
+        "type": "weekday-gate",
+        "z": "74a7bc70964ef2e0",
+        "name": "",
+        "weekdays": [
+            "2",
+            "3"
+        ],
+        "x": 480,
+        "y": 320,
+        "wires": [
+            [
+                "0aed8935e5d29080"
+            ]
+        ]
+    },
+    {
+        "id": "117ceb0a43286e73",
+        "type": "api-call-service",
+        "z": "74a7bc70964ef2e0",
+        "name": "Notify",
+        "server": "24ffbc71.2b42a4",
+        "version": 5,
+        "debugenabled": true,
+        "domain": "notify",
+        "service": "mobile_app_luke_s_iphone",
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [],
+        "data": "{\"message\":\"{{payload}}\",\"title\":\"Trains\",\"target\":\"platform specific\",\"data\":{}}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "x": 830,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b04d6cc998d37395",
+        "type": "split",
+        "z": "74a7bc70964ef2e0",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "117ceb0a43286e73",
+                "4dd6b7316ef38259"
+            ]
+        ]
+    },
+    {
+        "id": "0aed8935e5d29080",
+        "type": "api-call-service",
+        "z": "74a7bc70964ef2e0",
+        "name": "Notify",
+        "server": "24ffbc71.2b42a4",
+        "version": 5,
+        "debugenabled": true,
+        "domain": "notify",
+        "service": "mobile_app_talie_s_iphone_2",
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [],
+        "data": "{\"message\":\"{{payload}}\",\"title\":\"Trains\",\"target\":\"platform specific\",\"data\":{}}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "x": 670,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24ffbc71.2b42a4",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true
+    }
+]

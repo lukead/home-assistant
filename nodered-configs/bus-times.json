@@ -1,0 +1,1157 @@
+[
+    {
+        "id": "4b266ccf43346bac",
+        "type": "tab",
+        "label": "Get bus times",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "bdb1beee7517de09",
+        "type": "http request",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.tfl.gov.uk/StopPoint/490003644W/Arrivals",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 250,
+        "y": 360,
+        "wires": [
+            [
+                "8c555a58602e7aba"
+            ]
+        ]
+    },
+    {
+        "id": "686922f7f8737921",
+        "type": "api-call-service",
+        "z": "4b266ccf43346bac",
+        "name": "Notify",
+        "server": "24ffbc71.2b42a4",
+        "version": 5,
+        "debugenabled": true,
+        "domain": "notify",
+        "service": "mobile_app_luke_s_iphone",
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [],
+        "data": "{\"message\":\"{{payload.vehicleId}} ({{payload.insert}})\",\"title\":\"Next {{payload.lineName}} bus in {{payload.arrival}}\",\"target\":\"platform specific\",\"data\":{}}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "x": 650,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d88b74894b7ce9ae",
+        "type": "time-range-switch",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "startTime": "06:50",
+        "endTime": "07:15",
+        "startOffset": 0,
+        "endOffset": 0,
+        "x": 330,
+        "y": 180,
+        "wires": [
+            [
+                "3b173cafa43da4e7"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "0136999ea167c607",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (BS)",
+        "entityConfig": "5ef83f045017a679",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 780,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "335713f9a9201b94",
+        "type": "inject",
+        "z": "4b266ccf43346bac",
+        "name": "arrivals",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 80,
+        "y": 440,
+        "wires": [
+            [
+                "bdb1beee7517de09",
+                "25396533d2367c2e",
+                "2115213b32fd7f0d",
+                "49a6932c805a1471"
+            ]
+        ]
+    },
+    {
+        "id": "3b173cafa43da4e7",
+        "type": "trigger",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "op1": "",
+        "op2": "",
+        "op1type": "pay",
+        "op2type": "nul",
+        "duration": "1",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "min",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 490,
+        "y": 180,
+        "wires": [
+            [
+                "686922f7f8737921"
+            ]
+        ]
+    },
+    {
+        "id": "106821a912f763eb",
+        "type": "weekday-gate",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "weekdays": [
+            "1",
+            "4",
+            "5"
+        ],
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "d88b74894b7ce9ae"
+            ]
+        ]
+    },
+    {
+        "id": "25396533d2367c2e",
+        "type": "http request",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.tfl.gov.uk/StopPoint/490001037X/Arrivals",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 250,
+        "y": 400,
+        "wires": [
+            [
+                "8c555a58602e7aba"
+            ]
+        ]
+    },
+    {
+        "id": "8c555a58602e7aba",
+        "type": "function",
+        "z": "4b266ccf43346bac",
+        "name": "Parse bus arrivals",
+        "func": "const LINES_BY_NAPTAN = {\n    '490003644W': {\n        162: true\n    },\n    '490001037X': {\n        162: true,\n        352: true,\n        138: true,\n        'SL5': true\n    },\n    '490001018A': {\n        162: true\n    },\n    '490011471Y': {\n        352: true\n    }\n};\n\nconst arrivals = JSON.parse(msg.payload).map(({\n    expectedArrival,\n    naptanId,\n    lineName,\n    stationName,\n    timeToStation,\n    timing,\n    vehicleId\n}) => {\n    const arrival = `${Math.floor(timeToStation / 60)}m ${timeToStation % 60}s`;\n    return {\n        arrival,\n        expectedArrival,\n        insert: timing.insert,\n        lineName,\n        naptanId,\n        stationName,\n        timeToStation,\n        vehicleId\n    };\n})\n.filter(({ lineName, naptanId }) => LINES_BY_NAPTAN[naptanId][lineName])\n.sort((a, b) => a.timeToStation - b.timeToStation)\n.reduce((acc, item, index) => {\n    const insertDate = new Date(item.insert);\n    const insertDiffSecs = (Date.now() - insertDate.getTime()) / 1000;\n    const insert = `${Math.floor(insertDiffSecs / 60)}m ${Math.round(insertDiffSecs % 60)}s ago`;\n\n    item.index = index;\n    item.rawInsert = item.insert;\n    item.insert = insert;\n    acc.push(item);\n    return acc;\n}, []);\n\nmsg.payload = arrivals;\n\nreturn arrivals.map((a) => ({ payload: a }));",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 440,
+        "wires": [
+            [
+                "bf5cedfb3b3cc3b1"
+            ],
+            [
+                "bf5cedfb3b3cc3b1"
+            ]
+        ]
+    },
+    {
+        "id": "2115213b32fd7f0d",
+        "type": "http request",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.tfl.gov.uk/StopPoint/490001018A/Arrivals",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 250,
+        "y": 440,
+        "wires": [
+            [
+                "8c555a58602e7aba"
+            ]
+        ]
+    },
+    {
+        "id": "49a6932c805a1471",
+        "type": "http request",
+        "z": "4b266ccf43346bac",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.tfl.gov.uk/StopPoint/490011471Y/Arrivals",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 250,
+        "y": 480,
+        "wires": [
+            [
+                "8c555a58602e7aba"
+            ]
+        ]
+    },
+    {
+        "id": "bf5cedfb3b3cc3b1",
+        "type": "switch",
+        "z": "4b266ccf43346bac",
+        "name": "Station",
+        "property": "payload.naptanId",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "490003644W",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "490001037X",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "490001018A",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "490011471Y",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 220,
+        "y": 640,
+        "wires": [
+            [
+                "5e3090dcec98dbd3"
+            ],
+            [
+                "b01ffee4d120eb2e"
+            ],
+            [
+                "78d1b71da387f227"
+            ],
+            [
+                "b6a7349b6b1b5591"
+            ]
+        ]
+    },
+    {
+        "id": "b01ffee4d120eb2e",
+        "type": "switch",
+        "z": "4b266ccf43346bac",
+        "name": "Index",
+        "property": "payload.index",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 640,
+        "wires": [
+            [
+                "0136999ea167c607"
+            ],
+            [
+                "29e2e4010842a8f4"
+            ]
+        ]
+    },
+    {
+        "id": "29e2e4010842a8f4",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (BS) 2",
+        "entityConfig": "37ef81111d3413de",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 830,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "78d1b71da387f227",
+        "type": "switch",
+        "z": "4b266ccf43346bac",
+        "name": "Index",
+        "property": "payload.index",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 680,
+        "wires": [
+            [
+                "6c4f272051d2e7d9"
+            ],
+            [
+                "ce639e752c4f41b1"
+            ]
+        ]
+    },
+    {
+        "id": "b6a7349b6b1b5591",
+        "type": "switch",
+        "z": "4b266ccf43346bac",
+        "name": "Index",
+        "property": "payload.index",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 720,
+        "wires": [
+            [
+                "87b0d2a305d9c655"
+            ],
+            [
+                "c3ea8b7e4ae4dfb5"
+            ]
+        ]
+    },
+    {
+        "id": "6c4f272051d2e7d9",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (BJ)",
+        "entityConfig": "b6649da7433c9222",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 780,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ce639e752c4f41b1",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (BJ) 2",
+        "entityConfig": "00f78003b051101d",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 830,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "87b0d2a305d9c655",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (Bouverie)",
+        "entityConfig": "46299bd1a1129702",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 700,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c3ea8b7e4ae4dfb5",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (Bouverie) 2",
+        "entityConfig": "3c7818a8b517e21e",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 830,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5e3090dcec98dbd3",
+        "type": "switch",
+        "z": "4b266ccf43346bac",
+        "name": "Index",
+        "property": "payload.index",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 600,
+        "wires": [
+            [
+                "28fcb1ac0f61b1f3",
+                "106821a912f763eb"
+            ],
+            [
+                "1c60f3ef25471eec"
+            ]
+        ]
+    },
+    {
+        "id": "28fcb1ac0f61b1f3",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (K)",
+        "entityConfig": "9d46f12ecdc7dbc5",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 760,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1c60f3ef25471eec",
+        "type": "ha-sensor",
+        "z": "4b266ccf43346bac",
+        "name": "Bus Arrival (K) 2",
+        "entityConfig": "854a8e2e10a8ddea",
+        "version": 0,
+        "state": "payload.expectedArrival",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "line_name",
+                "value": "payload.lineName",
+                "valueType": "msg"
+            },
+            {
+                "property": "vehicle_id",
+                "value": "payload.vehicleId",
+                "valueType": "msg"
+            },
+            {
+                "property": "time_to_station",
+                "value": "payload.timeToStation",
+                "valueType": "msg"
+            },
+            {
+                "property": "arrival",
+                "value": "payload.arrival",
+                "valueType": "msg"
+            },
+            {
+                "property": "station_name",
+                "value": "payload.stationName",
+                "valueType": "msg"
+            },
+            {
+                "property": "insert",
+                "value": "payload.insert",
+                "valueType": "msg"
+            }
+        ],
+        "inputOverride": "allow",
+        "outputProperties": [],
+        "x": 800,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24ffbc71.2b42a4",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true
+    },
+    {
+        "id": "5ef83f045017a679",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival BS",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival BS"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "37ef81111d3413de",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival BS 2",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival BS 2"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "b6649da7433c9222",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival BJ",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival BJ"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "00f78003b051101d",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival BJ 2",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival BJ 2"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "46299bd1a1129702",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival Bouverie",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival Bouverie"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "3c7818a8b517e21e",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus Arrival Bouverie 2",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus Arrival Bouverie 2"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "9d46f12ecdc7dbc5",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus arrival K",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus arrival K"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    },
+    {
+        "id": "854a8e2e10a8ddea",
+        "type": "ha-entity-config",
+        "server": "24ffbc71.2b42a4",
+        "deviceConfig": "",
+        "name": "Bus arrival K 2",
+        "version": "6",
+        "entityType": "sensor",
+        "haConfig": [
+            {
+                "property": "name",
+                "value": "Bus arrival K 2"
+            },
+            {
+                "property": "icon",
+                "value": ""
+            },
+            {
+                "property": "entity_picture",
+                "value": ""
+            },
+            {
+                "property": "entity_category",
+                "value": ""
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": ""
+            },
+            {
+                "property": "state_class",
+                "value": ""
+            }
+        ],
+        "resend": false,
+        "debugEnabled": false
+    }
+]
